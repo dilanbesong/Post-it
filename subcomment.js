@@ -17,19 +17,17 @@ router.post('/subcomment', async (req, res) => {
    } 
       
 })
-//https:localhost:3000/displayreplies?commentId=queryString
+//http://localhost:3000/displayreplies?commentId=queryString
 router.get('/displayreplies', async (req, res) => {
     try {
          const { commentId } = req.query
          const { replies } = await Comment.findById(commentId)
+
         if(replies.length <= 0){
           return res.send({msg:'Zero reaction for this comment '})
        }
-       const getReplies = await Promise.all( replies.map( async (replyId) => {
-         let reply = await Comment.findById(replyId)
-         return reply
-       }))
-   return res.send(getReplies.flat(1))
+       const getReplies = await Comment.find({'_id':{$in:replies}})
+       return res.send(getReplies)
 
     } catch (error) {
       return res.send(error.message)

@@ -12,13 +12,14 @@ async function userExist(req, res, next){
 
 async function deleteUser(userId, res){
    const deletedUser = await User.findByIdAndDelete(userId)
-   await new softUsers({deletedUser:JSON.stringify(deletedUser)}).save()
+   const softuser =  new softUsers({deletedUser:JSON.stringify(deletedUser)})
+   await softuser.save()
   
 
   if( deletedUser !== null){
-     return res.json({ msg: 'user has been deleted'})
-  }
      return res.json({ msg: 'we could not delete this user'})
+  }
+     return res.json({ msg: 'user has been deleted'})
 }
 
 module.exports = { userExist, deleteUser }

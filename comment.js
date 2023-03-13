@@ -24,22 +24,19 @@ router.post('/maincomment', async(req, res) => {
 })
 
 
-//http://localhost:3000/searchcomment?commentorsId=queryString&postId=queryString
+//http://localhost:3000/searchcomment?commentorId=queryString&postId=queryString
 router.get('/searchcomment', async(req, res) => {
    try {
-          const { commentorsId, postId } = req.query
+          const {commentorId, postId } = req.query
           const post = await Post.findById(postId)
-          const searchComment = await Promise.all(post.postComments.map( async (commentId) => {
-          let comment = await Comment.findById(commentId)
-          if( comment == null) {
-                await Post.updateOne({_id:postId}, { $pull:{postComments:commentId} })
-           }
-          return comment.commentorId.includes(commentorsId)
-        }))
-      return res.send(searchComment)
-   } catch (error) {
-      return res.send(error.message)
-   }
+          const specificPostcomment = await Comment.find({ '_id': {$in:post.postComments}})
+          const searchcomment = specificPostcomment.filter( comment => { 
+           return comment.commentorId.toString().includes(commentorId) 
+         })
+          return res.send(searchcomment)
+      } catch (error) {
+           return res.send(error.message)
+       }
 })
 
 // show post and full comments
@@ -79,7 +76,7 @@ router.delete( '/deleteComment', async (req, res) => {
        const { commentId, postId } = req.body
        const getComment = await Comment.findById(commentId)
        const post = await Post.findById(postId)
-   
+       
       if(getComment.commentorId !== req.session.user._id.toString()){
              return res.send({msg:'You cannot delete this comment'})
         }

@@ -18,15 +18,15 @@ router.post('/createpost', async (req, res) => {
    
 })
 
-//http://localhost:3000/deletePost?postId=queryString
+// delete post
 router.delete('/deletePost', async (req, res) => {
    try {
-        const { postId } = req.query
+        const { postId } = req.body
         const post = await Post.findById(postId)
-        await Post.findByIdAndUpdate(postId, {isDeleted:true})
+        await Post.findByIdAndDelete(postId)
         const softpost =  new softPosts({ deletedPost:JSON.stringify(post) })
         await softpost.save()
-        return res.json({msg:'post have been deleted', deletedPost:softposts })
+        return res.json({msg:`post with id ${post._id} have been deleted` })
    } catch (error) {
       return res.send(error.message)
    }
@@ -37,15 +37,14 @@ router.get('/getPosts', async(req, res) => {
      try {
             const posts = await Post.find()
             const recentPost = posts.map( post =>{
-           return { ...post, timeAgo:timeAgo(new Date(post.createdAt.toString())) }
-    })
-  
+               return { ...post, timeAgo:timeAgo(new Date(post.createdAt.toString())) }
+             })
       return res.send(recentPost)
      } catch (error) {
       return res.send(error.message)
      }
 })
-
+//
 router.get('/post/:postId', async(req, res) => {
    try {
       const { postId } = req.params
@@ -62,8 +61,9 @@ router.get('/searchPost', async(req, res) => {
       if( searchword == '') return
       const posts = await Post.find()
       const searchPost = posts.filter( post => {
-          return post.userId.toLocaleLowerCase().startsWith(searchword)
-            || post.text.toLocaleLowerCase().startsWith(searchword)
+          return post.userId.toString().toLocaleLowerCase().startsWith(searchword)
+             || post.text.toLocaleLowerCase().startsWith(searchword) 
+            || post._id.toString().startsWith(searchword)
      })
         return res.send(searchPost)
     } catch (error) {
