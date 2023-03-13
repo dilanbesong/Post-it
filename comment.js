@@ -36,7 +36,7 @@ router.get('/searchcomment', async(req, res) => {
            }
           return comment.commentorId.includes(commentorsId)
         }))
-   return res.send(searchComment)
+      return res.send(searchComment)
    } catch (error) {
       return res.send(error.message)
    }
@@ -52,7 +52,7 @@ router.get('/comment/:postId', async (req, res) => {
         if( comment == null){
               await Post.updateOne({_id:commentId}, {$pull:{postComments:commentId}})
          }
-                 return comment
+               return comment
       }))
       return res.send(getComments.flat(1)) 
 

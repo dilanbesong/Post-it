@@ -38,10 +38,14 @@ router.post('/signUp', userExist, async(req, res) => {
       }
 })
 router.delete('/delete-account', async( req, res ) => {
-   deleteUser(req.session.user._id, res)
+   try {
+     deleteUser(req.session.user._id, res)
+   } catch (error) {
+     return res.send(error.message)
+   }
 })
 
-router.put( '/update-account', async(req, res) => {
+router.put('/update-account', async(req, res) => {
   try {
       const userId = req.session.user._id
       const { name, email, password } = req.body
@@ -90,6 +94,21 @@ router.get('/finduser', async (req, res) => {
   } catch (error) {
     return res.send(error.message)
   }
+})
+
+// http:localhost:3000/user/:userId
+// Get user by id
+router.get('/user/:userId', async(req, res) => {
+  const { userId } = req.params
+    try {
+       const user = await User.findById(userId)
+       if(user == null){
+         return res.send({msg:"This user does not exist"})
+       }
+        return res.send(user)
+    } catch (error) {
+      return res.send(error.message)
+    }
 })
 
 module.exports = router
